@@ -1,34 +1,41 @@
-import Id from "../../@shared/domain/value-object/id.value-object";
-import ProductGateway from "../../product-adm/gateway/product.gateway";
-import Client from "../domain/client.entity";
-import ClientGateway from "../gateway/client.gateway";
+import { Id } from "../../@shared/domain/value-object/id.value-object";
+import { Client } from "../domain/client.entity";
+import { ClientGateway } from "../gateway/client.gateway";
+
 import { ClientModel } from "./client.model";
 
-export default class ClientRepository implements ClientGateway {
+function clientModelToEntity(clientModel: ClientModel) {
+  return new Client({
+    id: new Id(clientModel.id),
+    name: clientModel.name,
+    email: clientModel.email,
+    address: clientModel.address,
+    document: clientModel.document,
+    createdAt: clientModel.createdAt,
+    updatedAt: clientModel.updatedAt,
+  });
+}
+
+export class ClientRepository implements ClientGateway {
   async add(client: Client): Promise<void> {
     await ClientModel.create({
       id: client.id.id,
       name: client.name,
       email: client.email,
       address: client.address,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      document: client.document,
+      createdAt: client.createdAt,
+      updatedAt: client.updatedAt,
     });
   }
+
   async find(id: string): Promise<Client> {
-    const client = await ClientModel.findOne({
-      where: { id },
-    });
+    const client = await ClientModel.findOne({ where: { id } });
 
     if (!client) {
-      throw new Error(`Client with id ${id} not found`);
+      throw new Error("Client not found.");
     }
 
-    return new Client({
-      id: new Id(client.id),
-      name: client.name,
-      email: client.email,
-      address: client.address,
-    });
+    return clientModelToEntity(client);
   }
 }

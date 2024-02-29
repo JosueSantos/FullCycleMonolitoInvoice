@@ -1,9 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
-import Id from "../../@shared/domain/value-object/id.value-object";
-import ClientAdmFacadeFactory from "../factory/facade.factory";
-import ProductAdmFacadeFactory from "../factory/facade.factory";
+
 import { ClientModel } from "../repository/client.model";
-import ClientAdmFacade from "./client-adm.facade";
+import { ClientAdmFacadeFactory } from "../factory/client-adm.facade.factory";
 
 describe("ClientAdmFacade test", () => {
   let sequelize: Sequelize;
@@ -16,7 +14,7 @@ describe("ClientAdmFacade test", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([ClientModel]);
+    sequelize.addModels([ClientModel]);
     await sequelize.sync();
   });
 
@@ -30,28 +28,32 @@ describe("ClientAdmFacade test", () => {
     const input = {
       id: "1",
       name: "Client 1",
-      email: "x@x.com",
+      email: "client@example.com",
       address: "Address 1",
+      document: "0000",
     };
 
     await facade.add(input);
 
-    const client = await ClientModel.findOne({ where: { id: "1" } });
+    const clientDb = await ClientModel.findOne({ where: { id: "1" } });
 
-    expect(client).toBeDefined();
-    expect(client!.name).toBe(input.name);
-    expect(client!.email).toBe(input.email);
-    expect(client!.address).toBe(input.address);
+    expect(clientDb).toBeDefined();
+    expect(clientDb.id).toEqual(input.id);
+    expect(clientDb.name).toEqual(input.name);
+    expect(clientDb.email).toEqual(input.email);
+    expect(clientDb.address).toEqual(input.address);
+    expect(clientDb.document).toEqual(input.document);
   });
 
-  it("it should find a client", async () => {
+  it("should find a client", async () => {
     const facade = ClientAdmFacadeFactory.create();
 
     const input = {
       id: "1",
       name: "Client 1",
-      email: "x@x.com",
+      email: "client@example.com",
       address: "Address 1",
+      document: "0000",
     };
 
     await facade.add(input);
@@ -59,9 +61,10 @@ describe("ClientAdmFacade test", () => {
     const client = await facade.find({ id: "1" });
 
     expect(client).toBeDefined();
-    expect(client!.id).toBe(input.id);
-    expect(client!.name).toBe(input.name);
-    expect(client!.email).toBe(input.email);
-    expect(client!.address).toBe(input.address);
+    expect(client.id).toEqual(input.id);
+    expect(client.name).toEqual(input.name);
+    expect(client.email).toEqual(input.email);
+    expect(client.address).toEqual(input.address);
+    expect(client.document).toEqual(input.document);
   });
 });

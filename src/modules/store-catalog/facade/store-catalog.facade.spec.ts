@@ -1,8 +1,9 @@
 import { Sequelize } from "sequelize-typescript";
-import StoreCatalogFacadeFactory from "../factory/facade.factory";
 import { ProductModel } from "../repository/product.model";
 
-describe("StoreCatalogFacade test", () => {
+import { StoreCatalogFacadeFactory } from "../factory/facade.factory";
+
+describe("ProductAdmFacade test", () => {
   let sequelize: Sequelize;
 
   beforeEach(async () => {
@@ -13,7 +14,7 @@ describe("StoreCatalogFacade test", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([ProductModel]);
+    sequelize.addModels([ProductModel]);
     await sequelize.sync();
   });
 
@@ -21,51 +22,51 @@ describe("StoreCatalogFacade test", () => {
     await sequelize.close();
   });
 
-  it("it should find a product", async () => {
-    const facade = StoreCatalogFacadeFactory.create();
-
+  it("should find a product", async () => {
     await ProductModel.create({
       id: "1",
       name: "Product 1",
-      description: "Product 1 description",
+      description: "Description 1",
       salesPrice: 100,
     });
 
-    const result = await facade.find({ id: "1" });
+    const storeCatalogFacade = StoreCatalogFacadeFactory.create();
+
+    const result = await storeCatalogFacade.find({ id: "1" });
 
     expect(result.id).toBe("1");
     expect(result.name).toBe("Product 1");
-    expect(result.description).toBe("Product 1 description");
+    expect(result.description).toBe("Description 1");
     expect(result.salesPrice).toBe(100);
   });
 
-  it("it should find all product", async () => {
-    const facade = StoreCatalogFacadeFactory.create();
-
+  it("should find all products", async () => {
     await ProductModel.create({
       id: "1",
       name: "Product 1",
-      description: "Product 1 description",
+      description: "Description 1",
       salesPrice: 100,
     });
 
     await ProductModel.create({
       id: "2",
       name: "Product 2",
-      description: "Product 2 description",
-      salesPrice: 200,
+      description: "Description 2",
+      salesPrice: 150,
     });
 
-    const result = await facade.findAll();
+    const storeCatalogFacade = StoreCatalogFacadeFactory.create();
+
+    const result = await storeCatalogFacade.findAll();
 
     expect(result.products.length).toBe(2);
     expect(result.products[0].id).toBe("1");
-    expect(result.products[0].name).toBe("Product 1");
-    expect(result.products[0].description).toBe("Product 1 description");
-    expect(result.products[0].salesPrice).toBe(100);
     expect(result.products[1].id).toBe("2");
+    expect(result.products[0].name).toBe("Product 1");
     expect(result.products[1].name).toBe("Product 2");
-    expect(result.products[1].description).toBe("Product 2 description");
-    expect(result.products[1].salesPrice).toBe(200);
+    expect(result.products[0].description).toBe("Description 1");
+    expect(result.products[1].description).toBe("Description 2");
+    expect(result.products[0].salesPrice).toBe(100);
+    expect(result.products[1].salesPrice).toBe(150);
   });
 });
